@@ -1,7 +1,7 @@
 var five = require("johnny-five");
 var TelegramBot = require('node-telegram-bot-api');
 
-var token = '47947300:AAH4Ab7KZy7-gq2E2R16Ks7oDiPu476Islw';
+var token = 'YOUR_TELEGRAM_BOT_TOKEN';
 // fill this variable with the chatId of the use you want
 // to send the message to
 var chatIds = [];
@@ -21,16 +21,25 @@ bot.onText(/\/light/, (msg, match) => {
 // subscribe to the list of users who wish to recieve light notifications
 bot.onText(/\/subscribe/, (msg, match) => {
   var chatId = msg.chat.id;
-  chatIds.push(chatId);
-  bot.sendMessage(chatId, 'Your will recieve light notifications ;)');
+  var index = chatIds.indexOf(chatId);
+  if (index == -1) {
+    chatIds.push(chatId);
+    bot.sendMessage(chatId, 'You will recieve light notifications ;)');
+  } else {
+    bot.sendMessage(chatId, 'You are already subscribed!');
+  }
 });
 
 // unsubscribe the notifications
 bot.onText(/\/unsubscribe/, (msg, match) => {
   var chatId = msg.chat.id;
   var index = chatIds.indexOf(chatId);
-  chatIds.splice(index, 1);
-  bot.sendMessage(chatId, 'Your have successfully unsubcribed.');
+  if (index != -1) {
+    chatIds.splice(index, 1);
+    bot.sendMessage(chatId, 'You have successfully unsubcribed.');
+  } else {
+    bot.sendMessage(chatId, 'You are are not subscribed.');
+  }
 });
 
 /**
@@ -45,9 +54,6 @@ setInterval(function () {
   spamControlOn = true;
 }, 1000 * 60 * 10)
 
-light.within([ 0.10, 0.20 ], function() {
-
-})
 board.on("ready", function () {
   console.log('Board is ready')
   var light = new five.Light("A0");
